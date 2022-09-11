@@ -22,8 +22,10 @@ typedef struct map_t {
 
 typedef struct sfRenderWindow sfRenderWindow;
 
-Map *create_map(Line *lines, int linec);
-void render(Map *map, sfRenderWindow *window);
+void render_line(sfRenderWindow *window, Line line, sfColor color);
+void render_map(Map *map, sfRenderWindow *window);
 bool lines_intersect(Line line1, Line line2, Point *point);
+Point rot_point(Point point, double deg);
+Line rot_line(Line line, double deg);
 
 #endif
