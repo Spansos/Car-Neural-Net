@@ -14,20 +14,20 @@ Map *create_map(Line *lines, int linec) {
     return map;
 }
 
-void render_line(sfRenderWindow *window, Line line, sfColor color) {
+void render_line(sfRenderWindow *window, Line line, sfColor color, sfVector2f cam_pos) {
     sfVertex line_vertices[2];
 
     line_vertices[0] = (sfVertex){
         .position = (sfVector2f){
-            .x = line.p1.x,
-            .y = line.p1.y
+            .x = line.p1.x - cam_pos.x,
+            .y = line.p1.y - cam_pos.y
         },
         .color = color,
     };
     line_vertices[1] = (sfVertex){
         .position = (sfVector2f){
-            .x = line.p2.x,
-            .y = line.p2.y
+            .x = line.p2.x - cam_pos.x,
+            .y = line.p2.y - cam_pos.y
         },
         .color = color,
     };
@@ -35,12 +35,12 @@ void render_line(sfRenderWindow *window, Line line, sfColor color) {
     sfRenderWindow_drawPrimitives(window, line_vertices, 2, sfLines, NULL);
 }
 
-void render_map(Map *map, sfRenderWindow *window) {
+void render_map(Map *map, sfRenderWindow *window, sfVector2f cam_pos) {
     for (int i=0; i < map->goal_linec; i++) {
-        render_line(window, map->goal_lines[i], sfGreen);
+        render_line(window, map->goal_lines[i], sfGreen, cam_pos);
     }
     for (int i=0; i < map->linec; i++) {
-        render_line(window, map->lines[i], sfWhite);
+        render_line(window, map->lines[i], sfWhite, cam_pos);
     }
 }
 

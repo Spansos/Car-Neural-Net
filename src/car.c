@@ -54,7 +54,7 @@ bool collide_lines(Car *car, Line *lines, int linec){
     return false;
 }
 
-void render_car(Car *car, sfRenderWindow *window) {
+void render_car(Car *car, sfRenderWindow *window, sfVector2f cam_pos) {
     sfColor color;
     if (car->is_dead) {
         color = sfRed;
@@ -64,7 +64,7 @@ void render_car(Car *car, sfRenderWindow *window) {
     }
     for (int i=0; i < car->linec; i++) {
         Line line = calc_car_line(car, i);
-        render_line(window, line, color);
+        render_line(window, line, color, cam_pos);
     }
 }
 
