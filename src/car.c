@@ -6,7 +6,7 @@
 #include <lines.h>
 #include <car.h>
 
-Car *create_car() {
+Car *create_car(Map *map) {
     Car *car = calloc(1, sizeof(Car));
     car->linec = 4;
     car->lines = calloc(sizeof(Line), 4);
@@ -14,6 +14,19 @@ Car *create_car() {
     car->lines[1] = (Line){.p1 = (Point){.x = 30, .y = -20}, .p2 = (Point){.x = 30, .y = 20}};
     car->lines[2] = (Line){.p1 = (Point){.x = 30, .y = 20}, .p2 = (Point){.x = -30, .y = 20}};
     car->lines[3] = (Line){.p1 = (Point){.x = -30, .y = 20}, .p2 = (Point){.x = -30, .y = -20}};
+
+    Line first_goal = map->goal_lines[0];
+    int avr_x = (first_goal.p1.x + first_goal.p2.x) / 2;
+    int avr_y = (first_goal.p1.y + first_goal.p2.y) / 2;
+    car->pos.x = avr_x;
+    car->pos.y = avr_y;
+
+    Line sec_goal = map->goal_lines[1];
+    int avr_x2 = (sec_goal.p1.x + sec_goal.p2.x) / 2;
+    int avr_y2 = (sec_goal.p1.y + sec_goal.p2.y) / 2;
+    double dir_co = (avr_x-avr_x2)/(avr_x-avr_x2);
+    double degs = atan(dir_co);
+    car->rotation = degs;
     return car;
 }
 

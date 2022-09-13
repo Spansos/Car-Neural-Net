@@ -15,9 +15,7 @@ int main() {
     map.linec = read_lines_file("maplines.txt", &map.lines);
     map.goal_linec = read_lines_file("goallines.txt", &map.goal_lines);
 
-    Car *car = create_car();
-    car->pos = (sfVector2f){300, 250};
-    car->rotation = 242;
+    Car *car = create_car(&map);
 
     sfRenderWindow_setFramerateLimit(window, 60);
     sfVector2f cam_pos;

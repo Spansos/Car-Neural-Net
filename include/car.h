@@ -19,7 +19,7 @@ typedef struct car_t {
     double fitness;
 } Car;
 
-Car *create_car();
+Car *create_car(Map *map);
 void free_car(Car *car);
 bool collide_line(Car *car, Line line);
 bool collide_lines(Car *car, Line *lines, int linec);
