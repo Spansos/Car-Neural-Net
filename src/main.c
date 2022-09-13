@@ -19,8 +19,6 @@ int main() {
     car->pos = (sfVector2f){300, 250};
     car->rotation = 242;
 
-    
-
     sfRenderWindow_setFramerateLimit(window, 60);
     sfVector2f cam_pos;
     sfEvent event;
