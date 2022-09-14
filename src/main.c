@@ -5,6 +5,8 @@
 #include <lines.h>
 #include <car.h>
 
+#define NUM_CARS 55
+
 int read_lines_file(char *file_name, Line **lines);
 
 int main() {
@@ -15,8 +17,8 @@ int main() {
     map.linec = read_lines_file("maplines.txt", &map.lines);
     map.goal_linec = read_lines_file("goallines.txt", &map.goal_lines);
 
-    Car *cars[55];
-    for (int i=0; i<55; i++) {
+    Car *cars[NUM_CARS];
+    for (int i=0; i<NUM_CARS; i++) {
         cars[i] = create_car(&map, NULL);
     }
 
@@ -31,7 +33,7 @@ int main() {
         }
         double max_fit = 0;
         Car *max_fit_car;
-        for (int i=0; i<55; i++) {
+        for (int i=0; i<NUM_CARS; i++) {
             update_car(cars[i], &map);
             if (cars[i]->fitness > max_fit) {
                 max_fit = cars[i]->fitness;
@@ -42,8 +44,8 @@ int main() {
 
         sfRenderWindow_clear(window, sfBlack);
         render_map(&map, window, cam_pos);
-        for (int i=0; i<55; i++) {
-            render_car(cars[55], window, cam_pos);
+        for (int i=0; i<NUM_CARS; i++) {
+            render_car(cars[i], window, cam_pos);
         }
         sfRenderWindow_display(window);
     }

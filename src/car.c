@@ -25,7 +25,7 @@ Car *create_car(Map *map, Network *net) {
     Line sec_goal = map->goal_lines[1];
     int avr_x2 = (sec_goal.p1.x + sec_goal.p2.x) / 2;
     int avr_y2 = (sec_goal.p1.y + sec_goal.p2.y) / 2;
-    double dir_co = (avr_x-avr_x2)/(avr_x-avr_x2);
+    double dir_co = (avr_y-avr_y2)/(avr_x-avr_x2);
     double degs = atan(dir_co);
     car->rotation = degs;
 
@@ -99,6 +99,7 @@ void update_car(Car *car, Map *map) {
         return;
     }
 
+    // get dists
     Point end_point;
     Line see_line;
     double dists[9];
@@ -106,18 +107,35 @@ void update_car(Car *car, Map *map) {
         double deg = (i-4) * 10;
         deg += car->rotation;
 
-        end_point= rot_point((Point){.x=25, .y=0}, deg);
+        end_point = rot_point((Point){.x=1000, .y=0}, deg);
+        end_point.x += car->pos.x;
+        end_point.y += car->pos.y;
 
         see_line = (Line){(Point){.x=(int)car->pos.x, .y=(int)car->pos.y}, end_point};
-        double dist = 25*25;
+        
+        double dist = 1000*1000;
         for (int j=0; j < map->linec; j++) {
             Point intersect;
             if (lines_intersect(map->lines[j], see_line, &intersect)) {
-                double cur_dist = intersect.x*intersect.x + intersect.y*intersect.y;
+                Point rel_intersect = (Point){.x=intersect.x-car->pos.x, .y=intersect.y-car->pos.y};
+                double cur_dist = rel_intersect.x*rel_intersect.x + rel_intersect.y*rel_intersect.y;
+                if (cur_dist < dist) {
+                    dist = cur_dist;
+                }
             }
         }
+        dists[i] = sqrt(dist) / 1000;
     }
+    set_network_input(car->net, dists, 9, 0);
+    calc_network(car->net);
+    double *raw_out;
+    get_network_output(car->net, &raw_out);
+    
     bool out[4];
+    for (int i=0; i < 4; i++) {
+        out[i] = raw_out[i] < .5;
+    }
+    free(raw_out);
 
     // rotate
     if (out[0]) {
