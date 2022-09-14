@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <lines.h>
 #include <SFML/Graphics.h>
+#include <neuralnet.h>
 
 typedef struct car_t {
     Line *lines;
@@ -17,13 +18,14 @@ typedef struct car_t {
     int goals;
     bool is_dead;
     double fitness;
+    Network *net;
 } Car;
 
-Car *create_car(Map *map);
+Car *create_car(Map *map, Network *net);
 void free_car(Car *car);
 bool collide_line(Car *car, Line line);
 bool collide_lines(Car *car, Line *lines, int linec);
 void render_car(Car *car, sfRenderWindow *window, sfVector2f cam_pos);
-void update_car(Car *car, Map *map, bool go_left, bool go_right, bool accelerate, bool brake);
+void update_car(Car *car, Map *map);
 
 #endif

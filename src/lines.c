@@ -112,8 +112,8 @@ Point rot_point(Point point, double deg) {
 
     // recalculate point with new properties
     Point r_point;
-    r_point.x = cos(angle) * dist;
-    r_point.y = sin(angle) * dist;
+    r_point.x = (int)cos(angle) * dist;
+    r_point.y = (int)sin(angle) * dist;
 
     return r_point;
 }

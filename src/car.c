@@ -4,9 +4,10 @@
 #include <SFML/Graphics.h>
 #include <stdio.h>
 #include <lines.h>
+#include <neuralnet.h>
 #include <car.h>
 
-Car *create_car(Map *map) {
+Car *create_car(Map *map, Network *net) {
     Car *car = calloc(1, sizeof(Car));
     car->linec = 4;
     car->lines = calloc(sizeof(Line), 4);
@@ -27,6 +28,17 @@ Car *create_car(Map *map) {
     double dir_co = (avr_x-avr_x2)/(avr_x-avr_x2);
     double degs = atan(dir_co);
     car->rotation = degs;
+
+    int net_size[] = {9, 8, 8, 4};
+    Network *rand_net = create_network(net_size, 4, NULL);
+    init_random(rand_net, 2, 2);
+    if (net) {
+        car->net = add_networks(net, rand_net);
+        free_network(rand_net);
+    }
+    else {
+        car->net = rand_net;
+    }
     return car;
 }
 
@@ -81,28 +93,48 @@ void render_car(Car *car, sfRenderWindow *window, sfVector2f cam_pos) {
     }
 }
 
-void update_car(Car *car, Map *map, bool go_left, bool go_right, bool accelerate, bool brake) {
+void update_car(Car *car, Map *map) {
     // check if dead
     if (car->is_dead) {
         return;
     }
 
+    Point end_point;
+    Line see_line;
+    double dists[9];
+    for (int i=0; i<9; i++) {
+        double deg = (i-4) * 10;
+        deg += car->rotation;
+
+        end_point= rot_point((Point){.x=25, .y=0}, deg);
+
+        see_line = (Line){(Point){.x=(int)car->pos.x, .y=(int)car->pos.y}, end_point};
+        double dist = 25*25;
+        for (int j=0; j < map->linec; j++) {
+            Point intersect;
+            if (lines_intersect(map->lines[j], see_line, &intersect)) {
+                double cur_dist = intersect.x*intersect.x + intersect.y*intersect.y;
+            }
+        }
+    }
+    bool out[4];
+
     // rotate
-    if (go_left) {
+    if (out[0]) {
         car->rotation_change -= .5;
     }
-    if (go_right) {
+    if (out[1]) {
         car->rotation_change += .5;
     }
     car->rotation += car->rotation_change;
     car->rotation_change *= .9;
 
     // move
-    if (accelerate) {
+    if (out[2]) {
         car->vel.x += cos(2 * M_PI * car->rotation / 360);
         car->vel.y += sin(2 * M_PI * car->rotation / 360);
     }
-    if (brake) {
+    if (out[3]) {
         car->vel.x -= cos(2 * M_PI * car->rotation / 360);
         car->vel.y -= sin(2 * M_PI * car->rotation / 360);
     }
