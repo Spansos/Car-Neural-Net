@@ -7,7 +7,7 @@
 #include <neuralnet.h>
 #include <car.h>
 
-Car *create_car(Map *map, Network *net) {
+Car *create_car(Map *map, Network *net, bool add_rand) {
     Car *car = calloc(1, sizeof(Car));
     car->linec = 4;
     car->lines = calloc(sizeof(Line), 4);
@@ -31,7 +31,7 @@ Car *create_car(Map *map, Network *net) {
 
     int net_size[] = {9, 8, 8, 4};
     Network *rand_net = create_network(net_size, 4, NULL);
-    init_random(rand_net, 2, 2);
+    init_random(rand_net, 2*add_rand, 2*add_rand);
     if (net) {
         car->net = add_networks(net, rand_net);
         free_network(rand_net);
@@ -42,7 +42,11 @@ Car *create_car(Map *map, Network *net) {
     return car;
 }
 
-void free_car(Car *car) {
+void free_car(Car *car, bool free_net) {
+    if (free_net) {
+        free_network(car->net);
+    }
+    free(car->lines);
     free(car);
 }
 

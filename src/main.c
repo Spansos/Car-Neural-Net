@@ -1,15 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <SFML/Graphics.h>
 #include <lines.h>
 #include <car.h>
 
-#define NUM_CARS 10
+#define NUM_CARS 100
+#define NUM_SURVIVE 50
 
 int read_lines_file(char *file_name, Line **lines);
 void sort_cars(Car **cars);
-void new_cars(Car **cars);
+void new_cars(Car **cars, Map *map);
 
 int main() {
     sfVector2i res = {800, 600};
@@ -21,7 +23,7 @@ int main() {
 
     Car *cars[NUM_CARS];
     for (int i=0; i<NUM_CARS; i++) {
-        cars[i] = create_car(&map, NULL);
+        cars[i] = create_car(&map, NULL, true);
     }
 
     sfRenderWindow_setFramerateLimit(window, 60);
@@ -53,15 +55,8 @@ int main() {
         sfRenderWindow_display(window);
         t++;
         if (t>300) {
-            for (int i=0; i < NUM_CARS; i++) {
-                printf("%lf\n", cars[i]->fitness);
-            }
-            printf("\n");
-            sort_cars(cars);
-            for (int i=0; i < NUM_CARS; i++) {
-                printf("%lf\n", cars[i]->fitness);
-            }
-            return 1;
+            new_cars(cars, &map);
+            t=0;
         }
     }
 }
@@ -100,5 +95,15 @@ void sort_cars(Car **cars) {
         temp = cars[i];
         cars[i] = cars[max_fit_index];
         cars[max_fit_index] = temp;
+    }
+}
+
+void new_cars(Car **cars, Map *map) {
+    sort_cars(cars);
+    for (int i=0; i < NUM_CARS; i++) {
+        int j = i % NUM_SURVIVE;
+        Car *new_car = create_car(map, cars[j]->net, i>NUM_SURVIVE);
+        free_car(cars[i], false);
+        cars[i] = new_car;
     }
 }

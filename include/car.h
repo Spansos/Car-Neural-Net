@@ -21,8 +21,8 @@ typedef struct car_t {
     Network *net;
 } Car;
 
-Car *create_car(Map *map, Network *net);
-void free_car(Car *car);
+Car *create_car(Map *map, Network *net, bool add_rand);
+void free_car(Car *car, bool free_net);
 bool collide_line(Car *car, Line line);
 bool collide_lines(Car *car, Line *lines, int linec);
 void render_car(Car *car, sfRenderWindow *window, sfVector2f cam_pos);
