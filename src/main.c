@@ -5,9 +5,11 @@
 #include <lines.h>
 #include <car.h>
 
-#define NUM_CARS 55
+#define NUM_CARS 10
 
 int read_lines_file(char *file_name, Line **lines);
+void sort_cars(Car **cars);
+void new_cars(Car **cars);
 
 int main() {
     sfVector2i res = {800, 600};
@@ -23,6 +25,7 @@ int main() {
     }
 
     sfRenderWindow_setFramerateLimit(window, 60);
+    int t=0;
     sfVector2f cam_pos;
     sfEvent event;
     while (sfRenderWindow_isOpen(window)) {
@@ -48,6 +51,18 @@ int main() {
             render_car(cars[i], window, cam_pos);
         }
         sfRenderWindow_display(window);
+        t++;
+        if (t>300) {
+            for (int i=0; i < NUM_CARS; i++) {
+                printf("%lf\n", cars[i]->fitness);
+            }
+            printf("\n");
+            sort_cars(cars);
+            for (int i=0; i < NUM_CARS; i++) {
+                printf("%lf\n", cars[i]->fitness);
+            }
+            return 1;
+        }
     }
 }
 
@@ -69,4 +84,21 @@ int read_lines_file(char *file_name, Line **lines) {
     }
     fclose(file);
     return linec;
+}
+
+void sort_cars(Car **cars) {
+    Car *temp;
+    for (int i=0; i < NUM_CARS; i++) {
+        int max_fit_index = 0;
+        double max_fit = 0;
+        for (int j=i; j < NUM_CARS; j++) {
+            if (cars[j]->fitness > max_fit) {
+                max_fit = cars[j]->fitness;
+                max_fit_index = j;
+            }
+        }
+        temp = cars[i];
+        cars[i] = cars[max_fit_index];
+        cars[max_fit_index] = temp;
+    }
 }
