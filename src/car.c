@@ -7,6 +7,14 @@
 #include <neuralnet.h>
 #include <car.h>
 
+#define FRICTION 0.95
+#define SPEED 1
+#define MAX_SPEED ((SPEED*FRICTION) / (1 - FRICTION))
+
+#define ROT_FRICTION .9
+#define ROT_SPEED .5
+#define MAX_ROT_SPEED ((ROT_SPEED*ROT_FRICTION) / (1 - ROT_FRICTION))
+
 Car *create_car(Map *map, Network *net, bool add_rand) {
     Car *car = calloc(1, sizeof(Car));
     car->linec = 4;
@@ -29,7 +37,7 @@ Car *create_car(Map *map, Network *net, bool add_rand) {
     double degs = atan(dir_co);
     car->rotation = degs;
 
-    int net_size[] = {9, 8, 8, 4};
+    int net_size[] = {12, 8, 8, 4};
     Network *rand_net = create_network(net_size, 4, NULL);
     init_random(rand_net, 2*add_rand, 2*add_rand);
     if (net) {
@@ -97,6 +105,7 @@ void render_car(Car *car, sfRenderWindow *window, sfVector2f cam_pos) {
     }
 }
 
+
 void update_car(Car *car, Map *map) {
     // check if dead
     if (car->is_dead) {
@@ -130,7 +139,18 @@ void update_car(Car *car, Map *map) {
         }
         dists[i] = sqrt(dist) / 1000;
     }
+
+    Point in_vel = (Point){.x=car->vel.x / MAX_SPEED, .y=car->vel.y / MAX_SPEED};
+    in_vel = rot_point(in_vel, car->rotation_change);
+    double in_vel_x = (double)in_vel.x;
+    double in_vel_y = (double)in_vel.y;
+    double in_rot = (car->rotation_change / MAX_ROT_SPEED) + .5;
+
+    // do network
     set_network_input(car->net, dists, 9, 0);
+    set_network_input(car->net, &in_vel_x, 1, 9);
+    set_network_input(car->net, &in_vel_y, 1, 10);
+    set_network_input(car->net, &in_rot, 1, 11);
     calc_network(car->net);
     double *raw_out;
     get_network_output(car->net, &raw_out);
@@ -143,27 +163,28 @@ void update_car(Car *car, Map *map) {
 
     // rotate
     if (out[0]) {
-        car->rotation_change -= .5;
+        car->rotation_change -= ROT_SPEED;
     }
     if (out[1]) {
-        car->rotation_change += .5;
+        car->rotation_change += ROT_SPEED;
     }
     car->rotation += car->rotation_change;
-    car->rotation_change *= .9;
+    car->rotation = fmod(car->rotation, 360);
+    car->rotation_change *= ROT_FRICTION;
 
     // move
     if (out[2]) {
-        car->vel.x += cos(2 * M_PI * car->rotation / 360);
-        car->vel.y += sin(2 * M_PI * car->rotation / 360);
+        car->vel.x += SPEED * cos(2 * M_PI * car->rotation / 360);
+        car->vel.y += SPEED * sin(2 * M_PI * car->rotation / 360);
     }
     if (out[3]) {
-        car->vel.x -= cos(2 * M_PI * car->rotation / 360);
-        car->vel.y -= sin(2 * M_PI * car->rotation / 360);
+        car->vel.x -= SPEED * cos(2 * M_PI * car->rotation / 360);
+        car->vel.y -= SPEED * sin(2 * M_PI * car->rotation / 360);
     }
     car->pos.x += car->vel.x;
     car->pos.y += car->vel.y;
-    car->vel.x *= .95;
-    car->vel.y *= .95;
+    car->vel.x *= FRICTION;
+    car->vel.y *= FRICTION;
 
     // collision
     if (collide_lines(car, map->lines, map->linec)) {
@@ -192,4 +213,6 @@ void update_car(Car *car, Map *map) {
 
     // calc fitness
     car->fitness = car->goals + (1/(goal_dist + 1));
+
+    return;
 }

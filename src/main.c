@@ -102,8 +102,8 @@ void new_cars(Car **cars, Map *map) {
     sort_cars(cars);
     for (int i=0; i < NUM_CARS; i++) {
         int j = i % NUM_SURVIVE;
-        Car *new_car = create_car(map, cars[j]->net, i>NUM_SURVIVE);
-        free_car(cars[i], false);
+        Car *new_car = create_car(map, cars[j]->net, i>=NUM_SURVIVE);
+        free_car(cars[i], i>=NUM_SURVIVE);
         cars[i] = new_car;
     }
 }
