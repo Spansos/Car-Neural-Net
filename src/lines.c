@@ -119,6 +119,20 @@ Point rot_point(Point point, double deg) {
 }
 
 
+void rot_pointf(double point[2], double deg) {
+    // calc properties of point
+    double dist = sqrt(point[0]*point[0] + point[1]*point[1]);
+    double angle = atan2(point[0], point[1]);
+
+    // change calculated properties of point
+    angle += 2*M_PI*deg/360;
+
+    // recalculate point with new properties
+    point[0] = cos(angle) * dist;
+    point[1] = sin(angle) * dist;
+}
+
+
 Line rot_line(Line line, double deg) {
     line.p1 = rot_point(line.p1, deg);
     line.p2 = rot_point(line.p2, deg);

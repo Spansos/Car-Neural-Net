@@ -28,5 +28,6 @@ void render_map(Map *map, sfRenderWindow *window, sfVector2f cam_pos);
 bool lines_intersect(Line line1, Line line2, Point *point);
 Point rot_point(Point point, double deg);
 Line rot_line(Line line, double deg);
+void rot_pointf(double point[2], double deg);
 
 #endif

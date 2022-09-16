@@ -140,16 +140,16 @@ void update_car(Car *car, Map *map) {
         dists[i] = sqrt(dist) / 1000;
     }
 
-    Point in_vel = (Point){.x=car->vel.x / MAX_SPEED, .y=car->vel.y / MAX_SPEED};
-    in_vel = rot_point(in_vel, car->rotation_change);
-    double in_vel_x = (double)in_vel.x;
-    double in_vel_y = (double)in_vel.y;
-    double in_rot = (car->rotation_change / MAX_ROT_SPEED) + .5;
+    double in_vel[2] = {car->vel.x, car->vel.y};
+    rot_pointf(in_vel, car->rotation);
+    in_vel[0] /= MAX_SPEED; in_vel[1] /= MAX_SPEED;
+    in_vel[0] += 1; in_vel[1] += 1;
+    in_vel[0] /= 2; in_vel[1] /= 2;
+    double in_rot = (car->rotation_change / MAX_ROT_SPEED + 1) / 2;
 
     // do network
     set_network_input(car->net, dists, 9, 0);
-    set_network_input(car->net, &in_vel_x, 1, 9);
-    set_network_input(car->net, &in_vel_y, 1, 10);
+    set_network_input(car->net, in_vel, 2, 9);
     set_network_input(car->net, &in_rot, 1, 11);
     calc_network(car->net);
     double *raw_out;
@@ -160,6 +160,7 @@ void update_car(Car *car, Map *map) {
         out[i] = raw_out[i] < .5;
     }
     free(raw_out);
+
 
     // rotate
     if (out[0]) {
