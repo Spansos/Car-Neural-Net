@@ -26,14 +26,25 @@ int main() {
         cars[i] = create_car(&map, NULL, true);
     }
 
-    sfRenderWindow_setFramerateLimit(window, 60);
     int t=0;
+    bool speed = false;
+    sfRenderWindow_setFramerateLimit(window, 60);
     sfVector2f cam_pos;
+    sfClock *clock = sfClock_create();
     sfEvent event;
     while (sfRenderWindow_isOpen(window)) {
         while (sfRenderWindow_pollEvent(window, &event)) {
             if (event.type == sfEvtClosed) {
                 sfRenderWindow_close(window);
+            }
+            if ((event.type == sfEvtKeyPressed) && (event.key.code == sfKeySpace)) {
+                speed = !speed;
+                if (speed) {
+                    sfRenderWindow_setFramerateLimit(window, 0);
+                }
+                else {
+                    sfRenderWindow_setFramerateLimit(window, 60);
+                }
             }
         }
         double max_fit = 0;
@@ -47,14 +58,18 @@ int main() {
         }
         cam_pos = (sfVector2f){.x=max_fit_car->pos.x - res.x/2, .y=max_fit_car->pos.y - res.y/2};
 
-        sfRenderWindow_clear(window, sfBlack);
-        render_map(&map, window, cam_pos);
-        for (int i=0; i<NUM_CARS; i++) {
-            render_car(cars[i], window, cam_pos);
+        if (!speed || sfTime_asMilliseconds(sfClock_getElapsedTime(clock)) > 16) {
+            sfClock_restart(clock);
+            sfRenderWindow_clear(window, sfBlack);
+            render_map(&map, window, cam_pos);
+            for (int i=0; i<NUM_CARS; i++) {
+                render_car(cars[i], window, cam_pos);
+            }
+            sfRenderWindow_display(window);
         }
-        sfRenderWindow_display(window);
+
         t++;
-        if (t>300) {
+        if (t> 16 * 60) {
             new_cars(cars, &map);
             t=0;
         }

@@ -19,6 +19,7 @@ typedef struct car_t {
     bool is_dead;
     double fitness;
     Network *net;
+    double mem[4];
 } Car;
 
 Car *create_car(Map *map, Network *net, bool add_rand);
