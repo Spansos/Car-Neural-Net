@@ -18,6 +18,7 @@ typedef struct car_t {
     int goals;
     bool is_dead;
     double fitness;
+    double mem[8];
     Network *net;
 } Car;
 

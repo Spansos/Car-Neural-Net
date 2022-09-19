@@ -37,7 +37,7 @@ Car *create_car(Map *map, Network *net, bool add_rand) {
     double degs = atan(dir_co);
     car->rotation = degs;
 
-    int net_size[] = {12, 16, 8, 2};
+    int net_size[] = {20, 16, 8, 10};
     Network *rand_net = create_network(net_size, 4, NULL);
     init_random(rand_net, 2*add_rand, 2*add_rand);
     if (net) {
@@ -151,6 +151,7 @@ void update_car(Car *car, Map *map) {
     set_network_input(car->net, dists, 9, 0);
     set_network_input(car->net, in_vel, 2, 9);
     set_network_input(car->net, &in_rot, 1, 11);
+    set_network_input(car->net, car->mem, 8, 12);
     calc_network(car->net);
     double *raw_out;
     get_network_output(car->net, &raw_out);
@@ -158,6 +159,9 @@ void update_car(Car *car, Map *map) {
     double out[2];
     for (int i=0; i < 2; i++) {
         out[i] = (raw_out[i] - .5) * 2;
+    }
+    for (int i=0; i < 8; i++) {
+        car->mem[i] = raw_out[i+2];
     }
     free(raw_out);
 
