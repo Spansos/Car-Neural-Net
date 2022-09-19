@@ -69,7 +69,7 @@ int main() {
         }
 
         t++;
-        if (t> 16 * 60) {
+        if (t> 4 * 60) {
             new_cars(cars, &map);
             t=0;
         }
