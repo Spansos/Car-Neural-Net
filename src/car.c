@@ -37,8 +37,8 @@ Car *create_car(Map *map, Network *net, bool add_rand) {
     double degs = atan(dir_co);
     car->rotation = degs;
 
-    int net_size[] = {12, 32, 16, 8, 8, 8};
-    Network *rand_net = create_network(net_size, 6, NULL);
+    int net_size[] = {12, 16, 8, 2};
+    Network *rand_net = create_network(net_size, 4, NULL);
     init_random(rand_net, 2*add_rand, 2*add_rand);
     if (net) {
         car->net = add_networks(net, rand_net);
@@ -155,33 +155,21 @@ void update_car(Car *car, Map *map) {
     double *raw_out;
     get_network_output(car->net, &raw_out);
     
-    bool out[4];
-    for (int i=0; i < 4; i++) {
-        out[i] = raw_out[i] < .5;
+    double out[2];
+    for (int i=0; i < 2; i++) {
+        out[i] = (raw_out[i] - .5) * 2;
     }
     free(raw_out);
 
-
     // rotate
-    if (out[0]) {
-        car->rotation_change -= ROT_SPEED;
-    }
-    if (out[1]) {
-        car->rotation_change += ROT_SPEED;
-    }
+    car->rotation_change += out[0];
     car->rotation += car->rotation_change;
     car->rotation = fmod(car->rotation, 360);
     car->rotation_change *= ROT_FRICTION;
 
     // move
-    if (out[2]) {
-        car->vel.x += SPEED * cos(2 * M_PI * car->rotation / 360);
-        car->vel.y += SPEED * sin(2 * M_PI * car->rotation / 360);
-    }
-    if (out[3]) {
-        car->vel.x -= SPEED * cos(2 * M_PI * car->rotation / 360);
-        car->vel.y -= SPEED * sin(2 * M_PI * car->rotation / 360);
-    }
+    car->vel.x += out[1] * SPEED * cos(2 * M_PI * car->rotation / 360);
+    car->vel.y += out[1] * SPEED * sin(2 * M_PI * car->rotation / 360);
     car->pos.x += car->vel.x;
     car->pos.y += car->vel.y;
     car->vel.x *= FRICTION;

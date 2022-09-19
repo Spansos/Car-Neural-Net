@@ -6,8 +6,8 @@
 #include <lines.h>
 #include <car.h>
 
-#define NUM_CARS 100
-#define NUM_SURVIVE 50
+#define NUM_CARS 32
+#define NUM_SURVIVE 16
 
 int read_lines_file(char *file_name, Line **lines);
 void sort_cars(Car **cars);
@@ -69,7 +69,7 @@ int main() {
         }
 
         t++;
-        if (t> 4 * 60) {
+        if (t> 8 * 60) {
             new_cars(cars, &map);
             t=0;
         }
