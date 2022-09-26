@@ -6,8 +6,8 @@
 #include <lines.h>
 #include <car.h>
 
-#define NUM_CARS 20
-#define NUM_SURVIVE 10
+#define NUM_CARS 40
+#define NUM_SURVIVE 20
 
 int read_lines_file(char *file_name, Line **lines);
 void sort_cars(Car **cars);
